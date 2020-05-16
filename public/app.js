@@ -20,14 +20,19 @@ let roomDialog = null;
 let roomId = null;
 
 function init() {
+  console.log('Init-1');
   document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
   document.querySelector('#hangupBtn').addEventListener('click', hangUp);
   document.querySelector('#createBtn').addEventListener('click', createRoom);
   document.querySelector('#joinBtn').addEventListener('click', joinRoom);
   roomDialog = new mdc.dialog.MDCDialog(document.querySelector('#room-dialog'));
+  console.log('Init-2');
 }
 
 async function createRoom() {
+	
+  console.log('createRoom');
+	
   document.querySelector('#createBtn').disabled = true;
   document.querySelector('#joinBtn').disabled = true;
   const db = firebase.firestore();
@@ -39,6 +44,25 @@ async function createRoom() {
 
   // Add code for creating a room here
   
+  console.log('createRoom-1');
+  
+   const offer = await peerConnection.createOffer();
+   await peerConnection.setLocalDescription(offer);
+
+	const roomWithOffer = {
+		offer: {
+			type: offer.type,
+			sdp: offer.sdp
+		}
+	}
+	const roomRef = await db.collection('rooms').add(roomWithOffer);
+	const roomId = roomRef.id;
+	document.querySelector('#currentRoom').innerText = `Current room is ${roomId} - You are the caller!`  
+
+
+	
+  console.log('createRoom-2');	
+	
   // Code for creating room above
   
   localStream.getTracks().forEach(track => {
